@@ -9,15 +9,51 @@
 <body>
     <main>
         <h1>Find Movies</h1>
-        <input placeholder="Search Movies">
-        <button>Search</button>
 
-        <div class="post">
+        <form action="/search" method="post">
+            <input placeholder="Search Movies">
+            <button>Search</button>
+        </form>
+
+
+        <!-- <div class="post">
             <h2>Movie name:</h2>
             <p>Movie details:</p>
             <p>Movie ratings:</p>
-        </div>
+        </div> -->
     </main>
+
+<script> 
+    document.getElementById('searchForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const movieName = formData.get('movieName');
+
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ movieName })
+            });
+
+            const movieDetails = await response.json();
+            const movieNameElem = document.getElementById('movieName');
+            const movieOverviewElem = document.getElementById('movieOverview');
+            const movieReleaseDateElem = document.getElementById('movieReleaseDate');
+            
+            if (movieDetails.error) {
+                movieNameElem.textContent = movieDetails.error;
+                movieOverviewElem.textContent = '';
+                movieReleaseDateElem.textContent = '';
+            } else {
+                movieNameElem.textContent = `Title: ${movieDetails.title}`;
+                movieOverviewElem.textContent = `Overview: ${movieDetails.overview}`;
+                movieReleaseDateElem.textContent = `Release Date: ${movieDetails.release_date}`;
+            }
+        });
+</script>
+
 </body>
 <script src="server.js"></script>
 </html>

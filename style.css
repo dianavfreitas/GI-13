@@ -9,3 +9,14 @@ button{
     height: 50px;
     width: 100px;
 }
+
+input{
+    height: 44px;
+    width: 200px;
+}
+
+button, input{
+    display: flex;
+    justify-content: center;
+
+}
