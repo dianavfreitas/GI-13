@@ -1,28 +1,55 @@
-const express = require("express");
-const { fetchMovies } = require("./fetchMovies");
+// Import necessary modules
+import express from "express";   // Importing Express web framework
+import axios from "axios";       // Importing Axios for making HTTP requests
+import dotenv from 'dotenv';     // Importing dotenv to load environment variables from a .env file
+import cors from "cors";         // Importing CORS for handling Cross-Origin Resource Sharing
 
-const app = express();
-const port = 3000;
+dotenv.config();  // Load environment variables from .env file
 
-const path = require("path");
+const app = express();  // Create an instance of Express
+const port = 5000;      // Define the port number
+const apiKey = process.env.API_KEY;  // Get API key from environment variables
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(cors());  // Use CORS middleware to enable Cross-Origin Resource Sharing
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
+// Define a route for handling GET requests to /search endpoint
+app.get('/search', async (req, res) => {
+  const { movie } = req.query;  // Extract the 'movie' query parameter from the request
+  const url = `https://api.themoviedb.org/3/search/movie?query=${movie}&include_adult=true&language=en-US&page=1&api_key=${apiKey}`;
 
-app.post("/search", async (req, res) => {
-  const movieName = req.body.movieName;
-  const movieDetails = await fetchMovies(movieName);
-  if (movieDetails) {
-    res.send(` `);
-  } else {
-    res.send(` `);
+  try {
+    // Fetch movie data from external API
+    const response = await axios.get(url);  // Send HTTP GET request to movie search endpoint
+    const data = response.data; // Get data from the response
+
+    // If no results found, return 404 error
+    if (!data.results || data.results.length === 0) {
+      return res.status(404).json({ message: 'Movie not found' });
+    }
+
+    // Get the ID of the first movie from the search results
+    const movieId = data.results[0].id;
+    // Construct URL to fetch similar movies based on the movie ID
+    const urlId = `https://api.themoviedb.org/3/movie/${movieId}/similar?language=en-US&page=1&api_key=${apiKey}`;
+    // Fetch similar movies data from external API
+    const responseSimilar = await axios.get(urlId);  // Send HTTP GET request to fetch similar movies
+    const similarMovies = responseSimilar.data;  // Get data from the response
+
+    // Prepare the response object with main movie details and similar movies
+    const result = {
+      movie: data.results[0],               // Main movie details from the search results
+      similarMovies: similarMovies.results, // List of similar movies
+    };
+
+    res.json(result);  // Send JSON response with the result object
+
+  } catch (error) {
+    console.error('Error:', error.message || error);  // Log any errors to the console
+    res.status(500).send('Internal Server Error');  // Send 500 Internal Server Error for any exceptions
   }
 });
 
+// Start the server and listen on specified port
 app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}/`);
+  console.log(`Server listening on port ${port}`);  // Log a message when the server starts successfully
 });

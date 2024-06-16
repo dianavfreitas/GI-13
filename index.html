@@ -3,57 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="style.css" rel="stylesheet">
-    <title>Similar Movies</title>
+    <title>Similar Movies Website</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <main>
-        <h1>Find Movies</h1>
-
-        <form action="/search" method="post">
-            <input placeholder="Search Movies">
-            <button>Search</button>
-        </form>
-
-
-        <!-- <div class="post">
-            <h2>Movie name:</h2>
-            <p>Movie details:</p>
-            <p>Movie ratings:</p>
-        </div> -->
-    </main>
-
-<script> 
-    document.getElementById('searchForm').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-            const movieName = formData.get('movieName');
-
-            const response = await fetch('/search', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ movieName })
-            });
-
-            const movieDetails = await response.json();
-            const movieNameElem = document.getElementById('movieName');
-            const movieOverviewElem = document.getElementById('movieOverview');
-            const movieReleaseDateElem = document.getElementById('movieReleaseDate');
-            
-            if (movieDetails.error) {
-                movieNameElem.textContent = movieDetails.error;
-                movieOverviewElem.textContent = '';
-                movieReleaseDateElem.textContent = '';
-            } else {
-                movieNameElem.textContent = `Title: ${movieDetails.title}`;
-                movieOverviewElem.textContent = `Overview: ${movieDetails.overview}`;
-                movieReleaseDateElem.textContent = `Release Date: ${movieDetails.release_date}`;
-            }
-        });
-</script>
-
+    <h2>Find Similar Movies</h2>
+    <input type="text" id="input" placeholder="Search Movie Here">
+    <button id="button1">Search</button>
+    <div id="fetchMovies"></div>
+    <script src="fetchMovies.js"></script>
 </body>
-<script src="server.js"></script>
 </html>
